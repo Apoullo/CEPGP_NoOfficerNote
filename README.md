@@ -4,6 +4,8 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 
 它會讓原本存在幹部註記裡的 EP,GP 資訊，改存在本地端。
 
+出團人員名單不需要都是同個公會的人。
+
 方便使用Google表單紀錄EPGP的團隊使用。
 
 # 使用方式
