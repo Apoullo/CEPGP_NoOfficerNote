@@ -1,0 +1,625 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script File="CEPGP_NoneOfficeNote.lua"/>
+	
+	<Frame name="CEPGP_NON_options">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_text" inherits="GameFontNormalLarge"  justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent">
+							<Offset><AbsDimension x="20" y="-20"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_record_on_main_enable_text" inherits="GameFontNormal">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parent_text">
+							<AbsDimension x="20" y="-15" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_record_on_main_discount_text" inherits="GameFontNormal">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parent_record_on_main_enable_text">
+							<Offset>
+								<AbsDimension x="0" y="-15" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_record_on_main_discount_unit_text" inherits="GameFontNormal" text="%">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent_record_on_main_discount_text">
+							<Offset>
+								<AbsDimension x="60" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_record_on_main_enable" inherits="UIOptionsCheckButtonTemplate">
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0" />
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent_record_on_main_enable_text">
+						<Offset>
+							<AbsDimension x="5" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							CEPGP.Alt.BlockAwards = false;
+							CEPGP.Alt.SyncEP = true;
+							CEPGP.Alt.SyncGP = true;
+							CEPGP_NON_RECORD_ON_MAIN_ENABLE = true;
+							CEPGP_print("Alt EP discount enabled");
+						else
+							CEPGP_NON_RECORD_ON_MAIN_ENABLE = false;
+							CEPGP_print("Alt EP discount disabled");
+						end
+					</OnClick>
+					<OnShow>
+						if CEPGP_NON_RECORD_ON_MAIN_ENABLE then
+							self:SetChecked(true);
+						else
+							self:SetChecked(false);
+						end
+					</OnShow>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_record_on_main_discount" inherits="InputBoxTemplate">
+				<Size>
+					<AbsDimension x="50" y="20" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent_record_on_main_discount_text">
+						<Offset>
+							<AbsDimension x="5" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetAutoFocus(false);
+						self:SetMaxLetters(4);
+					</OnLoad>
+					<OnEnterPressed>
+						self:ClearFocus();
+					</OnEnterPressed>
+					<OnEditFocusLost>
+						self:HighlightText(0,0);
+						local value = tonumber(self:GetText());
+						local default = CEPGP_NON_RECORD_ON_MAIN_DISCOUNT;
+						if not value or value == default then
+							self:SetText(default);
+							return;
+						end
+						if value > 100 or 0 > value then
+							self:SetText(default);
+							CEPGP_print("Discount must be between 0% ~ 100%.", true);
+							return;
+						end
+						CEPGP_NON_RECORD_ON_MAIN_DISCOUNT = value;
+						CEPGP_print("EP percent updated.");
+					</OnEditFocusLost>
+					<OnShow>
+						self:SetText(CEPGP_NON_RECORD_ON_MAIN_DISCOUNT)
+					</OnShow>
+				</Scripts>
+			</EditBox>
+		</Frames>
+	</Frame>
+
+	<Frame name="CEPGP_NON_export" parent="UIParent" hidden="true" enableMouse="true" frameStrata="DIALOG" movable="true" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="420" y="275" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<Color r="0" g="0" b="0" />
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="256" y="64"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="12"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="CEPGP_NON_export_title" inherits="GameFontNormal" text="Export EPGP">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="CEPGP_NON_export_desc" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-30"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="CEPGP_NON_export_guide_text" inherits="GameFontNormal" text="" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-35"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				CEPGP_NON_export_guide_text:SetText("Gained EP/GP value list.\nYou can ctrl+c copy it to your data sheet.");
+			</OnLoad>
+		</Scripts>
+		<Frames>
+			<Button name="CEPGP_NON_export_close" inherits="UIPanelCloseButton">
+				<Size>
+					<AbsDimension x="40" y="40" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-3" y="-3" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PlaySound(799);
+						CEPGP_NON_export:Hide()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<ScrollFrame name="CEPGP_NON_export_scrollframe_ID" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="140" y="130"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="20" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="CEPGP_NON_export_dump_ID" autofocus="false" multiline="true">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<FontString inherits="GameFontNormal"/>
+						<Scripts>
+							<OnLoad>
+								self:SetSize(CEPGP_NON_export_scrollframe_ID:GetSize());
+							</OnLoad>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEnterPressed>
+								self:ClearFocus();
+							</OnEnterPressed>
+							<OnEditFocusLost>
+								self:HighlightText(0,0);
+							</OnEditFocusLost>
+						</Scripts>
+					</EditBox>
+				</ScrollChild>
+				<Scripts>
+					<OnLoad>
+						self:SetScrollChild(CEPGP_NON_export_dump_ID);
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+			<ScrollFrame name="CEPGP_NON_export_scrollframe_EP" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="80" y="130"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="190" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="CEPGP_NON_export_dump_EP" autofocus="false" multiline="true">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<FontString inherits="GameFontNormal"/>
+						<Scripts>
+							<OnLoad>
+								self:SetSize(CEPGP_NON_export_scrollframe_EP:GetSize());
+							</OnLoad>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEnterPressed>
+								self:ClearFocus();
+							</OnEnterPressed>
+							<OnEditFocusLost>
+								self:HighlightText(0,0);
+							</OnEditFocusLost>
+						</Scripts>
+					</EditBox>
+				</ScrollChild>
+				<Scripts>
+					<OnLoad>
+						self:SetScrollChild(CEPGP_NON_export_dump_EP);
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+			<ScrollFrame name="CEPGP_NON_export_scrollframe_GP" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="80" y="130"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="300" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="CEPGP_NON_export_dump_GP" autofocus="false" multiline="true">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<FontString inherits="GameFontNormal"/>
+						<Scripts>
+							<OnLoad>
+								self:SetSize(CEPGP_NON_export_scrollframe_GP:GetSize());
+							</OnLoad>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEnterPressed>
+								self:ClearFocus();
+							</OnEnterPressed>
+							<OnEditFocusLost>
+								self:HighlightText(0,0);
+							</OnEditFocusLost>
+						</Scripts>
+					</EditBox>
+				</ScrollChild>
+				<Scripts>
+					<OnLoad>
+						self:SetScrollChild(CEPGP_NON_export_dump_GP);
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+			<Button name="$parent_highlight" inherits="GameMenuButtonTemplate">
+				<Size>
+					<AbsDimension x="100" y="42" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="CEPGP_NON_export_scrollframe_EP">
+						<Offset>
+							<AbsDimension x="0" y="-5" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText("Select\nGained EP");
+					</OnLoad>
+					<OnClick>
+						CEPGP_NON_export_dump_EP:HighlightText();
+						CEPGP_NON_export_dump_EP:SetFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_highlight" inherits="GameMenuButtonTemplate">
+				<Size>
+					<AbsDimension x="100" y="42" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="CEPGP_NON_export_scrollframe_GP">
+						<Offset>
+							<AbsDimension x="0" y="-5" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText("Select\nGained GP");
+					</OnLoad>
+					<OnClick>
+						CEPGP_NON_export_dump_EP:HighlightText(0,0);
+						CEPGP_NON_export_dump_GP:HighlightText();
+						CEPGP_NON_export_dump_GP:SetFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnShow>
+				CEPGP_Info.IgnoreUpdates = true;
+				if (GetNumGuildMembers() - CEPGP_Info.NumExcluded) > CEPGP_ntgetn(CEPGP_roster) and CEPGP_Info.Polling then
+					CEPGP_NON_export_dump:SetText("Scanning guild roster. Please wait...");
+					CEPGP_Info.RosterStack["Export"] = CEPGP_formatExport;
+					--table.insert(CEPGP_Info.RosterStack, CEPGP_formatExport);
+				else
+					CEPGP_formatExport();
+				end
+			</OnShow>
+			<OnHide>
+				CEPGP_Info.IgnoreUpdates = false;
+			</OnHide>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+
+	<Frame name="CEPGP_NON_import" parent="UIParent" hidden="true" enableMouse="true" frameStrata="DIALOG" movable="true" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="600" y="275" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<Color r="0" g="0" b="0" />
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="256" y="64"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="12"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_title" inherits="GameFontNormal" text="Import EPGP">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_desc" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-30"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_close" inherits="UIPanelCloseButton">
+				<Size>
+					<AbsDimension x="40" y="40" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-3" y="-3" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PlaySound(799);
+						CEPGP_NON_import:Hide()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<ScrollFrame name="$parent_scrollframe" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="340" y="175"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="15" y="15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="CEPGP_NON_import_dump" autofocus="true" multiline="true">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<FontString inherits="GameFontNormal"/>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parent_clickhere" inherits="GameFontNormal">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								self:SetSize(CEPGP_NON_import_scrollframe:GetSize());
+								self:SetFocus();
+							</OnLoad>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEnterPressed>
+								self:ClearFocus();
+							</OnEnterPressed>
+							<OnTextChanged>
+								if #self:GetText() > 0 then
+									CEPGP_NON_import_dump_clickhere:Hide();
+								else
+									CEPGP_NON_import_dump_clickhere:Show();
+								end
+							</OnTextChanged>
+							<OnEditFocusLost>
+								self:HighlightText(0,0);
+							</OnEditFocusLost>
+						</Scripts>
+					</EditBox>
+				</ScrollChild>
+				<Scripts>
+					<OnLoad>
+						self:SetScrollChild(CEPGP_NON_import_dump);
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+			<ScrollFrame name="$parent_progress_scrollframe" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="170" y="85"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-35" y="15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="CEPGP_NON_import_progress_dump" autofocus="false" multiline="true">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<FontString inherits="GameFontNormal"/>
+						<Scripts>
+							<OnLoad>
+								self:SetSize(CEPGP_NON_import_progress_scrollframe:GetSize());
+								self:Disable();
+							</OnLoad>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEnterPressed>
+								self:ClearFocus();
+							</OnEnterPressed>
+						</Scripts>
+					</EditBox>
+				</ScrollChild>
+			</ScrollFrame>
+			<Button name="$parent_confirm" inherits="GameMenuButtonTemplate" text="Import Standings">
+				<Size>
+					<AbsDimension x="150" y="35" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$parent_scrollframe">
+						<Offset>
+							<AbsDimension x="-5" y="-5" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CEPGP_NON_importStandings();
+						CEPGP_NON_import_dump:ClearFocus();
+					</OnClick>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
+						GameTooltip:SetText("Processes the string supplied and updates your team standings.");
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<Frame name="$parent_guide">
+				<Size>
+					<AbsDimension x="200" y="240" />
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" />
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="CEPGP_NON_import_guide_text" inherits="GameFontNormal" text="" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$parent_scrollframe">
+							<Offset>
+								<AbsDimension x="40" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+
+	
+</Ui>
