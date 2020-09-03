@@ -14,7 +14,7 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 2. 點選 [導入列表]
 3. 將Google表單 ID EP GP 三個欄位的值全選複製起來，貼到 [Import EPGP] 的視窗裡，點選 [Import Standings]
 
-註:導入列表後會清除EPGP明細
+註:導入列表後會清除之前的EPGP明細
 
 ## 出團後
 1. 打 /cepnon 叫出視窗
@@ -23,8 +23,8 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 4. 點選 [Select Gained GP]，按下 crtl+c 複製，到 Google表單 的本次 GP 欄貼上
 
 ## 注意
-1. 匯入名單的ID必須與遊戲ID**完全相同**
-2. 有出現 guild 的字眼，是代表該 ID 有無在匯入名單上
+1. 匯入名單的ID必須與遊戲ID **完全相同**
+2. 有出現 guild 的字眼時，是代表該 ID 有無在匯入名單上
 
 ## 分身管理
 在 option 裡可以設定 **紀錄EPGP到本尊身上** ==> 若用分身出團時獲得的EPGP會記錄在本尊身上
