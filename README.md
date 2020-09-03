@@ -1,5 +1,50 @@
 # CEPGP NoneOfficeNote
 
+CEPGP NoneOfficeNote is a plugin of CEPGP addon.
+
+It will store the EPGP record into the local instead of the office note.
+
+The members of the raid doesn't need to be at the same guild.
+
+It is convenient for teams which using Google sheet to record EPGP.
+
+# How to use
+## Before raiding
+1. type /cepnon to show up the window.
+2. Click [Import Standings].
+3. Select and copy all the values ​​of the three fields of the Google sheet "ID EP GP", paste them into the [Import EPGP] window, and click [Import Standings].
+
+Note: After importing, the previous EPGP Traffic will be cleared.
+
+## After raiding
+1. type /cepnon to show up the window.
+2. Click [Export Standings].
+3. Click [Select Gained EP], press crtl+c to copy, and paste it into your Google sheet.
+4. Click [Select Gained GP], press crtl+c to copy, and paste it into your Google sheet.
+
+## Note
+1. The ID of the imported list must be ** exactly the same as the game ID **
+2. When the word "guild" appears, it means that the ID is on the import list.
+
+## Alt Management
+In the option, you can set **Recode EPGP on Main character**
+
+If you use the Alt to raid, the EPGP obtained will be recorded on the Main character.
+
+The link table of the Main/Alt is the CEPGP Alt Management setting.
+
+You can set the number of EP% obtained.
+
+## Does not support
+1. Stanby functions
+2. Save Standings/Restore Standings
+3. Add/Decay/Reset Guild EPGP
+4. All operations related to the guild Rank
+
+Compatible with CEPGP version 1.12.25
+
+##
+
 CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 
 它會讓原本存在幹部註記裡的 EP,GP 資訊，改存在本地端。
@@ -27,7 +72,9 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 2. 有出現 guild 的字眼時，是代表該 ID 有無在匯入名單上
 
 ## 分身管理
-在 option 裡可以設定 **紀錄EPGP到本尊身上** ==> 若用分身出團時獲得的EPGP會記錄在本尊身上
+在 option 裡可以設定 **紀錄EPGP到本尊身上**
+
+若用分身出團時獲得的EPGP會記錄在本尊身上
 
 本尊/分身的對應表是使用CEPGP原本的分身設定列表
 

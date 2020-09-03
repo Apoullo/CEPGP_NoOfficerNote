@@ -1,0 +1,13 @@
+## Title: Classic EPGP NoneOfficeNote
+## Version: 1.0.0
+## Author: Apollo @Taiwan
+## Interface: 11305
+## Dependencies: CEPGP
+## LoadWith: CEPGP
+## Notes: CEPGP NoneOfficeNote is a plugin of CEPGP addon. It will store the EPGP record into the local instead of the office note.
+## SavedVariables: CEPGP_NON_DB, CEPGP_NON_INDEX, CEPGP_NON_ALTEP_ENABLE, CEPGP_NON_ALTEP_DISCOUNT
+
+Libs\libs.xml
+Locales\locales.xml
+Frame.xml
+CEPGP_NoneOfficeNote.lua
