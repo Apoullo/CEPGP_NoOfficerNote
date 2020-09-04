@@ -171,9 +171,11 @@ function CEPGP_NON_importStandings()
 		local name, ep, gp = strsplit(",", lines[i])
 		if name ~= "" and name ~= nil and name ~= "ID" then
 			CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
-			CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, name, ep, gp)
-			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_EP"] = tonumber(ep)
-			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_GP"] = tonumber(gp)
+			local EP = math.floor(tonumber(ep))
+			local GP = math.floor(tonumber(gp))
+			CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, name, tostring(EP), tostring(GP))
+			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_EP"] = EP
+			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_GP"] = GP
 			CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = false
 		end
 	end
@@ -440,8 +442,8 @@ function CEPGP_formatExport_Hook()
 			GP = tonumber(strsub(offNote, strfind(offNote, ",")+1, string.len(offNote)));
 			GP = math.max(GP, CEPGP.GP.Min);
 			local strID = CEPGP_NON_DB[i]["NAME"]
-			local strEP = tostring(math.floor(EP) - math.floor(CEPGP_NON_DB[i]["IMPORT_EP"]))
-			local strGP = tostring(math.floor(GP) - math.floor(CEPGP_NON_DB[i]["IMPORT_GP"]))
+			local strEP = tostring(EP - CEPGP_NON_DB[i]["IMPORT_EP"])
+			local strGP = tostring(GP - CEPGP_NON_DB[i]["IMPORT_GP"])
 			if i == 1 then
 				allID = strID
 				allEP = strEP

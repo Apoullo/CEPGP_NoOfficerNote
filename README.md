@@ -14,11 +14,13 @@ It is convenient for teams which using Google sheet to record EPGP.
 2. Click [Import Standings].
 3. Select and copy all the values ​​of the three fields of the Google sheet "ID EP GP", paste them into the [Import EPGP] window, and click [Import Standings].
 
-Note: After importing, the previous EPGP Traffic will be cleared.
+Note: 
+1. After importing, the previous EPGP Traffic will be cleared.
+2. The imported EP/GP value will be rounded downward to its nearest integer
 
 ## After raiding
 1. type /cepnon to show up the window.
-2. Click [Export Standings].
+2. Click [Export Standings]. 
 3. Click [Select Gained EP], press crtl+c to copy, and paste it into your Google sheet.
 4. Click [Select Gained GP], press crtl+c to copy, and paste it into your Google sheet.
 
@@ -34,6 +36,8 @@ If you use the Alt to raid, the EPGP obtained will be recorded on the Main chara
 The link table of the Main/Alt is the CEPGP Alt Management setting.
 
 You can set the number of EP% obtained.
+
+**The Alt ID cannot be listed on the imprted data**
 
 ## Does not support
 1. Stanby functions
@@ -56,10 +60,12 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 # 使用方式
 ## 出團前
 1. 打 /cepnon 叫出視窗
-2. 點選 [導入列表]
+2. 點選 [導入列表] 
 3. 將Google表單 ID EP GP 三個欄位的值全選複製起來，貼到 [Import EPGP] 的視窗裡，點選 [Import Standings]
 
-註:導入列表後會清除之前的EPGP明細
+註: 
+1. 導入列表後會清除之前的EPGP明細
+2. 導入的 EP/GP 數值會使用無條件捨去法化為整數
 
 ## 出團後
 1. 打 /cepnon 叫出視窗
@@ -79,6 +85,8 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。
 本尊/分身的對應表是使用CEPGP原本的分身設定列表
 
 可以設定分身出團時所獲得的 EP %數
+
+**分身ID不可以列在出團表單上**
 
 ## 不支援
 1. 候補功能
