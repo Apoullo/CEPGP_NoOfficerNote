@@ -1,7 +1,7 @@
-# CEPGP NoneOfficeNote
+# CEPGP No Officer Note
 
-CEPGP NoneOfficeNote is a plugin of CEPGP addon.\
-It will store the EPGP record into the local instead of the office note.\
+CEPGP NoOfficerNote is a plugin of CEPGP addon.\
+It will store the EPGP record into the local instead of the officer note.\
 The members of the raid doesn't need to be at the same guild.\
 It is convenient for teams which using Google sheet to record EPGP.
 
@@ -41,7 +41,7 @@ Compatible with CEPGP version 1.12.25
 
 ##
 
-CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。\
+CEPGP NoOfficerNote 是 CEPGP addon 的 plugin。\
 它會讓原本存在幹部註記裡的 EP,GP 資訊，改存在本地端。\
 出團人員名單不需要都是同個公會的人。\
 方便使用Google表單紀錄EPGP的團隊使用。

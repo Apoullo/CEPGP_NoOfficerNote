@@ -1,9 +1,9 @@
 --local addonName, CEPGP_NON = ...
 --local addon = addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceHook-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("CEPGP_NoneOfficeNote")
+local L = LibStub("AceLocale-3.0"):GetLocale("CEPGP_NoOfficerNote")
 
 --[[ Globals ]]--
-CEPGP_NON_Addon = "CEPGP_NoneOfficeNote"
+CEPGP_NON_Addon = "CEPGP_NoOfficerNote"
 CEPGP_NON_LoadedAddon = false
 
 SLASH_CEPGPNON1 = "/CEPNON"
@@ -109,13 +109,13 @@ local function AddHook()
 		CEPGP_UpdateAltScrollBar();
 	end);
 
-	_G["CEPGP_guild_add_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_decay"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true);	end);
-	_G["CEPGP_guild_decay_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_decay_GP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_reset"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_button_guild_dump"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_button_guild_restore"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_guild_add_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
+	_G["CEPGP_guild_decay"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true);	end);
+	_G["CEPGP_guild_decay_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
+	_G["CEPGP_guild_decay_GP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
+	_G["CEPGP_guild_reset"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
+	_G["CEPGP_button_guild_dump"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
+	_G["CEPGP_button_guild_restore"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoOfficerNote mode"], true); end);
 	_G["CEPGP_button_guild"]:SetText(L["Team"])
 	
 	CEPGP_Info.ClassColours[""]= {
@@ -147,7 +147,7 @@ end
 
 local function GuiSetting()
 	CEPGP_NON_options:Hide()
-	CEPGP_NON_options.name = "Classic EPGP NonOfficeNote"
+	CEPGP_NON_options.name = "Classic EPGP NoOfficerNote"
 	CEPGP_NON_options.okay = SaveSettings
 	InterfaceOptions_AddCategory(CEPGP_NON_options)
 
