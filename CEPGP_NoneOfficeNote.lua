@@ -1,23 +1,14 @@
---[[ Globals ]]--
+--local addonName, CEPGP_NON = ...
+--local addon = addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceHook-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("CEPGP_NoneOfficeNote")
 
+--[[ Globals ]]--
 CEPGP_NON_Addon = "CEPGP_NoneOfficeNote"
 CEPGP_NON_LoadedAddon = false
 
 SLASH_CEPGPNON1 = "/CEPNON"
 SLASH_CEPGPNON2 = "/cepnon"
 SlashCmdList["CEPGPNON"] = CEPGP_NON_SlashCmd
-
-local LOG_FRAME_WIDTH = 800
-local LOG_FRAME_HEIGHT = 500
-
-local CEPGP_import_Hook = nil
-local LeftScrollList = nil
-local LeftEditBox = nil
-local MidScrollList = nil
-local MidEditBox = nil
-local RightScrollList = nil
-local RightEditBox = nil
 
 --[[ SAVED VARIABLES ]]--
 
@@ -32,30 +23,60 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("ADDON_LOADED")
 
-function CEPGP_NON_SlashCmd()
-	CEPGP_populateFrame();
-	ShowUIPanel(CEPGP_frame);
-	CEPGP_toggleFrame("");
-	CEPGP_updateGuild();
-	CEPGP_toggleFrame("CEPGP_guild");
-	CEPGP_mode = "guild";
-	CEPGP_populateFrame();
+
+--[[ WOW API HOOK ]]--
+local origGuildRosterSetOfficerNote = GuildRosterSetOfficerNote
+local origCanEditOfficerNote = CanEditOfficerNote
+
+function CEPGP_NON_SaveEPGP(index, offNote)
+	if CEPGP_NON_DB[index] == nil then return; end
+	
+	-- add the decimal part. because cepgp will calculate the EP/GP by math.floor
+	local EP, GP, ep, gp 
+	EP = tonumber(strsub(offNote, 1, strfind(offNote, ",")-1));
+	GP = tonumber(strsub(offNote, strfind(offNote, ",")+1, string.len(offNote)));
+	GP = math.max(GP, CEPGP.GP.Min);
+	ep = tostring(EP + CEPGP_NON_DB[index]["IMPORT_EP_DECIMAL"])
+	gp = tostring(GP + CEPGP_NON_DB[index]["IMPORT_GP_DECIMAL"])
+	CEPGP_NON_DB[index]["ONOTE"] = ep .. "," .. gp
+	--CEPGP_NON_DB[index]["ONOTE"] = offNote
+	CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
 end
 
+--hooksecurefunc("GuildRosterSetOfficerNote", function(index, offNote)
+--	CEPGP_NON_SaveEPGP(index, offNote)
+--end)
+
+function CEPGP_NON_GuildRosterSetOfficerNote_Hook(index, offNote)
+	if CEPGP_frame:IsShown() then
+		CEPGP_NON_SaveEPGP(index, offNote)
+		return
+	end
+	return origGuildRosterSetOfficerNote(index, offNote)
+end
+
+function CEPGP_NON_CanEditOfficerNote_Hook()
+	if CEPGP_frame:IsShown() then
+		return true
+	end
+	return origCanEditOfficerNote()
+end
+
+--[[ CEPGP HOOK ]]--
 local function AddHook()
-	_G.CEPGP_getEPGP = CEPGP_getEPGP_Hook
-	_G.CEPGP_getGuildInfo = CEPGP_getGuildInfo_Hook
-	_G.CEPGP_getIndex = CEPGP_getIndex_Hook
-	_G.CEPGP_getPlayerClass = CEPGP_getPlayerClass_Hook
-	_G.CEPGP_rosterUpdate = CEPGP_rosterUpdate_Hook
-	_G.CEPGP_formatExport = CEPGP_formatExport_Hook
-	_G.CEPGP_charIsExcluded = CEPGP_charIsExcluded_Hook
-	_G.CEPGP_addAltEPGP = CEPGP_addAltEPGP_Hook
-	_G.CEPGP_encodeClassString = CEPGP_encodeClassString_Hook
+	_G.CEPGP_getEPGP = CEPGP_getEPGP_Override
+	_G.CEPGP_getGuildInfo = CEPGP_getGuildInfo_Override
+	_G.CEPGP_getIndex = CEPGP_getIndex_Override
+	_G.CEPGP_getPlayerClass = CEPGP_getPlayerClass_Override
+	_G.CEPGP_rosterUpdate = CEPGP_rosterUpdate_Override
+	_G.CEPGP_formatExport = CEPGP_formatExport_Override
+	_G.CEPGP_charIsExcluded = CEPGP_charIsExcluded_Override
+	_G.CEPGP_addAltEPGP = CEPGP_addAltEPGP_Override
+	_G.CEPGP_encodeClassString = CEPGP_encodeClassString_Override
 	_G.CEPGP_import = CEPGP_NON_import
 	_G.CEPGP_export = CEPGP_NON_export
-	GuildRosterSetOfficerNote = CEPGP_GuildRosterSetOfficerNote_Hook
-	CanEditOfficerNote = CEPGP_CanEditOfficerNote_Hook
+	GuildRosterSetOfficerNote = CEPGP_NON_GuildRosterSetOfficerNote_Hook
+	CanEditOfficerNote = CEPGP_NON_CanEditOfficerNote_Hook
 
 	_G["CEPGP_options_alt_mangement_add_link"]:SetScript('OnClick', function()
 		local main = CEPGP_options_alt_mangement_main_link:GetText();
@@ -66,11 +87,11 @@ local function AddHook()
 		--local mainIndex = CEPGP_getIndex(main);
 		--local altIndex = CEPGP_getIndex(alt);
 		--if not mainIndex then
-		--	CEPGP_print(main .. " is not on team list", true);
+		--	CEPGP_NON_print(main .. " is not on team list", true);
 		--	return;
 		--end
 		--if not altIndex then
-		--	CEPGP_print(alt .. " is not on team list", true);
+		--	CEPGP_NON_print(alt .. " is not on team list", true);
 		--	return;
 		-- end
 		
@@ -88,13 +109,13 @@ local function AddHook()
 		CEPGP_UpdateAltScrollBar();
 	end);
 
-	_G["CEPGP_guild_add_EP"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_decay"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true);	end);
-	_G["CEPGP_guild_decay_EP"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_decay_GP"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_guild_reset"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_button_guild_dump"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
-	_G["CEPGP_button_guild_restore"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_guild_add_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_guild_decay"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true);	end);
+	_G["CEPGP_guild_decay_EP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_guild_decay_GP"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_guild_reset"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_button_guild_dump"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
+	_G["CEPGP_button_guild_restore"]:SetScript('OnClick', function() CEPGP_NON_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
 	_G["CEPGP_button_guild"]:SetText(L["Team"])
 	
 	CEPGP_Info.ClassColours[""]= {
@@ -103,6 +124,17 @@ local function AddHook()
 		b = 1,
 		colorStr = "#FFFFFF"
 	}
+end
+
+--[[ CORE ]]--
+function CEPGP_NON_SlashCmd()
+	CEPGP_populateFrame();
+	ShowUIPanel(CEPGP_frame);
+	CEPGP_toggleFrame("");
+	CEPGP_updateGuild();
+	CEPGP_toggleFrame("CEPGP_guild");
+	CEPGP_mode = "guild";
+	CEPGP_populateFrame();
 end
 
 local function SaveSettings(self)
@@ -139,9 +171,15 @@ local function Init()
     end
 end
 
-function CEPGP_NON_CreateNewMember(index, name, ep, gp)
+function CEPGP_NON_CreateNewMember(index, name, ep, gp, isAlt)
 	CEPGP_NON_DB[index] = {}
 	CEPGP_NON_UpdateMember(index, name, ep, gp, "", "")
+
+	CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_EP"] = tonumber(ep)
+	CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_GP"] = tonumber(gp)
+	CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_EP_DECIMAL"] = math.fmod(CEPGP_NON_DB[index]["IMPORT_EP"], 1)
+	CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_GP_DECIMAL"] = math.fmod(CEPGP_NON_DB[index]["IMPORT_GP"], 1)
+	CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = isAlt
 end
 
 function CEPGP_NON_UpdateMember(index, name, ep, gp, class, classFileName)
@@ -151,6 +189,15 @@ function CEPGP_NON_UpdateMember(index, name, ep, gp, class, classFileName)
 	CEPGP_NON_DB[index]["NAME"] = name
 	if class ~= nil then CEPGP_NON_DB[index]["CLASS"] = class end
 	if classFileName ~= nil then CEPGP_NON_DB[index]["classFileName"] = classFileName end
+end
+
+function CEPGP_NON_print(str, err)
+	if not str then return; end;
+	if err == nil then
+		DEFAULT_CHAT_FRAME:AddMessage("|c00FFF569CEPGP_NON: " .. tostring(str) .. "|r");
+	else
+		DEFAULT_CHAT_FRAME:AddMessage("|c00FFF569CEPGP_NON:|r " .. "|c00FF0000Error|r|c00FFF569 - " .. tostring(str) .. "|r");
+	end
 end
 
 local function OnEvent(self, event, arg1)
@@ -164,6 +211,51 @@ end
 
 frame:SetScript("OnEvent", OnEvent)
 
+--[[ GUI functions ]]--
+function CEPGP_NON_importStandings()
+	CEPGP_NON_DB = {};
+	CEPGP_NON_INDEX = 0
+	TRAFFIC = {};
+
+	local impString = CEPGP_NON_import_dump:GetText();
+	impString = string.gsub(impString, "    ", "," )
+	impString = strtrim(impString)
+	local lines = { strsplit("\n", impString) }
+	for i = 1, table.getn(lines) do
+		local name, ep, gp = strsplit(",", lines[i])
+		if name ~= "" and name ~= nil and name ~= "ID" then
+			CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
+			local EP = (tonumber(ep))
+			local GP = (tonumber(gp))
+			CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, name, tostring(EP), tostring(GP), false)
+		end
+	end
+
+	for m, t in pairs(CEPGP.Alt.Links) do
+		local indexMain = CEPGP_getIndex(m);
+		if indexMain then
+			for k, v in pairs(t) do
+				local indexAlt = CEPGP_getIndex(v)
+				if CEPGP_NON_RECORD_ON_MAIN_ENABLE and indexAlt then
+					CEPGP_NON_print(L["Import alt error"], true)
+					CEPGP_NON_DB = {};
+					CEPGP_NON_INDEX = 0
+					return
+				else
+					CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
+					local ep, gp = CEPGP_getEPGP(m, indexMain)
+					CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, v, ep, gp, true)
+				end
+			end
+		end
+	end
+
+	CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
+	CEPGP_NON_import:Hide()
+	CEPGP_NON_import_dump:SetText("")
+end
+
+--[[ CEPGP HOOK functions ]]--
 hooksecurefunc("CEPGP_addCharacterLink", function(main, alt)
 	if CEPGP.Alt.Links[main][#CEPGP.Alt.Links[main]] ~= alt then
 		return
@@ -183,54 +275,14 @@ hooksecurefunc("CEPGP_addCharacterLink", function(main, alt)
 	if mainIndex ~= -1 and altIndex == -1 then	-- found main and didn't found alt in the list
 		CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
 		local ep, gp = CEPGP_getEPGP(main, mainIndex)
-		CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, alt, ep, gp)
-		CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = true
+		CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, alt, ep, gp, true)
 		CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
 	end
 end)
 
-function CEPGP_NON_importStandings()
-	CEPGP_NON_DB = {};
-	CEPGP_NON_INDEX = 0
-	TRAFFIC = {};
+--[[ CEPGP Override functions ]]--
 
-	local impString = CEPGP_NON_import_dump:GetText();
-	impString = string.gsub(impString, "    ", "," )
-	impString = strtrim(impString)
-	local lines = { strsplit("\n", impString) }
-	for i = 1, table.getn(lines) do
-		local name, ep, gp = strsplit(",", lines[i])
-		if name ~= "" and name ~= nil and name ~= "ID" then
-			CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
-			local EP = math.floor(tonumber(ep))
-			local GP = math.floor(tonumber(gp))
-			CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, name, tostring(EP), tostring(GP))
-			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_EP"] = EP
-			CEPGP_NON_DB[CEPGP_NON_INDEX]["IMPORT_GP"] = GP
-			CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = false
-		end
-	end
-
-	for m, t in pairs(CEPGP.Alt.Links) do
-		for k, v in pairs(t) do
-			local index = CEPGP_getIndex(m);
-			if index then
-				CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
-				local ep, gp = CEPGP_getEPGP(m, index)
-				CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, v, ep, gp)
-				CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = true
-			end
-		end
-	end
-
-	CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
-	CEPGP_NON_import:Hide()
-	CEPGP_NON_import_dump:SetText("")
-end
-
--- Hook Functions --
-
-function CEPGP_getEPGP_Hook(name, index)
+function CEPGP_getEPGP_Override(name, index)
     if not index and not name then return; end
     local EP, GP = nil;
 
@@ -245,7 +297,7 @@ function CEPGP_getEPGP_Hook(name, index)
     end
 end
 
-function CEPGP_getGuildInfo_Hook(name)
+function CEPGP_getGuildInfo_Override(name)
     if not name then return; end
     if CEPGP_roster[name] then
 		local index = CEPGP_getIndex(name);
@@ -256,7 +308,7 @@ function CEPGP_getGuildInfo_Hook(name)
 	end
 end
 
-function CEPGP_getIndex_Hook(name)
+function CEPGP_getIndex_Override(name)
 	if not name then return; end
 	local i
 	for i = 1, #CEPGP_NON_DB do
@@ -267,7 +319,7 @@ function CEPGP_getIndex_Hook(name)
 	return nil
 end
 
-function CEPGP_getPlayerClass_Hook(name, index)
+function CEPGP_getPlayerClass_Override(name, index)
 	if not index and not name then return; end
 	if index == nil then index = CEPGP_getIndex(name); end
 	local class;
@@ -285,7 +337,7 @@ function CEPGP_getPlayerClass_Hook(name, index)
 	end
 end
 
-function CEPGP_rosterUpdate_Hook(event)
+function CEPGP_rosterUpdate_Override(event)
 	if CEPGP_Info.IgnoreUpdates or not CEPGP_Info.Initialised then return; end
 	if event == "GUILD_ROSTER_UPDATE" then
 		if CEPGP_Info.Polling then
@@ -299,21 +351,12 @@ function CEPGP_rosterUpdate_Hook(event)
 		--local timer = CEPGP_Info.LastUpdate;
 		--local numGuild = GetNumGuildMembers();
 		
-		if CanEditOfficerNote() then
-			CEPGP_guild_add_EP:Show();
-			CEPGP_guild_decay:Show();
-			CEPGP_guild_reset:Show();
-			CEPGP_raid_add_EP:Show();
-			CEPGP_button_guild_restore:Show();
-			CEPGP_button_guild_import:Show();
-		else --[[ Hides context sensitive options if player cannot edit officer notes ]]--
-			CEPGP_guild_add_EP:Hide();
-			CEPGP_guild_decay:Hide();
-			CEPGP_guild_reset:Hide();
-			CEPGP_raid_add_EP:Hide();
-			CEPGP_button_guild_restore:Hide();
-			CEPGP_button_guild_import:Hide();
-		end
+		CEPGP_guild_add_EP:Show();
+		CEPGP_guild_decay:Show();
+		CEPGP_guild_reset:Show();
+		CEPGP_raid_add_EP:Show();
+		CEPGP_button_guild_restore:Show();
+		CEPGP_button_guild_import:Show();
 		
 		CEPGP_updateGuild();
 
@@ -462,7 +505,7 @@ function CEPGP_rosterUpdate_Hook(event)
 	end
 end
 
-function CEPGP_formatExport_Hook()
+function CEPGP_formatExport_Override()
 	local allID = ""
 	local allEP = ""
 	local allGP = ""
@@ -494,48 +537,63 @@ function CEPGP_formatExport_Hook()
 		
 end
 
-function CEPGP_charIsExcluded_Hook(name, index)
+function CEPGP_charIsExcluded_Override(name, index)
 	return false;
 end
 
-function CEPGP_addAltEPGP_Hook(EP, GP, alt, main)
+function CEPGP_addAltEPGP_Override(EP, GP, alt, main)
 	local success, failMsg = pcall(function()
 		if CEPGP_NON_RECORD_ON_MAIN_ENABLE then
 			EP = EP * (CEPGP_NON_RECORD_ON_MAIN_DISCOUNT / 100)
 		end
 		if not main or CEPGP.Alt.BlockAwards then return; end
-		local index = CEPGP_getIndex(alt);
+		local indexAlt = CEPGP_getIndex(alt);
 		local mainEP, mainGP = CEPGP_getEPGP(main, CEPGP_roster[main][1]);
 		local altEP, altGP = CEPGP_getEPGP(alt, index);
 		
 		mainEP = math.max(mainEP + EP, 0);
 		mainGP = math.max(mainGP + GP, CEPGP.GP.Min + math.max(GP, 0));
-		
+
 		altEP = math.max(altEP + EP, 0);
-		altGP = math.max(altGP + GP, CEPGP.GP.Min + math.max(GP, 0));
+		altGP = math.max(altGP + GP, CEPGP.GP.Min + math.max(GP, 0));	
 		
-		if CEPGP.Alt.SyncEP and CEPGP.Alt.SyncGP then
-			GuildRosterSetOfficerNote(index, mainEP .. "," .. mainGP);	--	Both EPGP are being synced
-		elseif CEPGP.Alt.SyncEP then
-			GuildRosterSetOfficerNote(index, mainEP .. "," .. altGP);	--	Only EP is being synced
-		elseif CEPGP.Alt.SyncGP then
-			GuildRosterSetOfficerNote(index, altEP .. "," .. mainGP);	--	Only GP is being synced
+		local mainEP_decimal = math.fmod(mainEP,1)
+
+		mainEP = math.floor(mainEP)
+		mainGP = math.floor(mainGP)
+		altEP = math.floor(altEP)
+		altGP = math.floor(altGP)
+
+		if CEPGP_NON_RECORD_ON_MAIN_ENABLE then
+			local indexMain = CEPGP_getIndex(main);
+			CEPGP_NON_DB[indexMain]["IMPORT_EP_DECIMAL"] = mainEP_decimal
+			CEPGP_NON_DB[indexAlt]["IMPORT_EP_DECIMAL"] = mainEP_decimal
+			GuildRosterSetOfficerNote(indexMain, mainEP .. "," .. mainGP);	--	Both EPGP are being synced
+			GuildRosterSetOfficerNote(indexAlt, mainEP .. "," .. mainGP);	--	Both EPGP are being synced
 		else
-			GuildRosterSetOfficerNote(index, altEP .. "," .. altGP);	--	Alt standings are not synced with main
+			if CEPGP.Alt.SyncEP and CEPGP.Alt.SyncGP then
+				GuildRosterSetOfficerNote(indexAlt, mainEP .. "," .. mainGP);	--	Both EPGP are being synced
+			elseif CEPGP.Alt.SyncEP then
+				GuildRosterSetOfficerNote(indexAlt, mainEP .. "," .. altGP);	--	Only EP is being synced
+			elseif CEPGP.Alt.SyncGP then
+				GuildRosterSetOfficerNote(indexAlt, altEP .. "," .. mainGP);	--	Only GP is being synced
+			else
+				GuildRosterSetOfficerNote(indexAlt, altEP .. "," .. altGP);	--	Alt standings are not synced with main
+			end
+			C_Timer.After(1, function()
+				CEPGP_syncToMain(alt, indexAlt, main);
+			end);
 		end
 		
-		C_Timer.After(1, function()
-			CEPGP_syncToMain(alt, index, main);
-		end);
 	end);
 	
 	if not success then
-		CEPGP_print("Could not process changes to EPGP for " .. alt, true);
-		CEPGP_print(failMsg, true);
+		CEPGP_NON_print("Could not process changes to EPGP for " .. alt, true);
+		CEPGP_NON_print(failMsg, true);
 	end
 end
 
-function CEPGP_encodeClassString_Hook(class, str)
+function CEPGP_encodeClassString_Override(class, str)
 	
 	local colours = {
 		["DRUID"] = "00FF7D0A",
@@ -554,17 +612,4 @@ function CEPGP_encodeClassString_Hook(class, str)
 	else
 		return "|cFFFFFFFF" .. str .. "|r";
 	end
-end
-
-function CEPGP_GuildRosterSetOfficerNote_Hook(index, offNote)
-    if CEPGP_NON_DB[index] == nil then
-        return
-    else
-        CEPGP_NON_DB[index]["ONOTE"] = offNote
-        CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
-    end
-end
-
-function CEPGP_CanEditOfficerNote_Hook()
-    return true
 end
