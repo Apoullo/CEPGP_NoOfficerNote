@@ -5,7 +5,7 @@
 ## Dependencies: CEPGP
 ## LoadWith: CEPGP
 ## Notes: CEPGP NoneOfficeNote is a plugin of CEPGP addon. It will store the EPGP record into the local instead of the office note.
-## SavedVariables: CEPGP_NON_DB, CEPGP_NON_INDEX, CEPGP_NON_ALTEP_ENABLE, CEPGP_NON_ALTEP_DISCOUNT
+## SavedVariables: CEPGP_NON_DB, CEPGP_NON_INDEX, CEPGP_NON_RECORD_ON_MAIN_ENABLE, CEPGP_NON_RECORD_ON_MAIN_DISCOUNT
 
 Libs\libs.xml
 Locales\locales.xml

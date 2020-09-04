@@ -23,7 +23,7 @@ local RightEditBox = nil
 
 CEPGP_NON_DB = {};
 CEPGP_NON_INDEX = 0
-CEPGP_NON_RECORD_ON_MAIN_ENABLE = false
+CEPGP_NON_RECORD_ON_MAIN_ENABLE = true
 CEPGP_NON_RECORD_ON_MAIN_DISCOUNT = 50
 
 --[[ Code ]]--
@@ -97,6 +97,12 @@ local function AddHook()
 	_G["CEPGP_button_guild_restore"]:SetScript('OnClick', function() CEPGP_print(L["You CANNOT doing this at NoneOfficeNote mode"], true); end);
 	_G["CEPGP_button_guild"]:SetText(L["Team"])
 	
+	CEPGP_Info.ClassColours[""]= {
+		r = 1,
+		g = 1,
+		b = 1,
+		colorStr = "#FFFFFF"
+	}
 end
 
 local function SaveSettings(self)
@@ -157,6 +163,31 @@ local function OnEvent(self, event, arg1)
 end
 
 frame:SetScript("OnEvent", OnEvent)
+
+hooksecurefunc("CEPGP_addCharacterLink", function(main, alt)
+	if CEPGP.Alt.Links[main][#CEPGP.Alt.Links[main]] ~= alt then
+		return
+	end
+	local mainIndex = -1
+	local altIndex = -1
+	for i = 1, #CEPGP_NON_DB do
+		if CEPGP_NON_DB[i]["NAME"] == main then
+			CEPGP_NON_DB[i]["ALT"] = false
+			mainIndex = i
+		elseif CEPGP_NON_DB[i]["NAME"] == alt then
+			CEPGP_NON_DB[i]["ALT"] = true
+			altIndex = i
+		end
+	end
+
+	if mainIndex ~= -1 and altIndex == -1 then	-- found main and didn't found alt in the list
+		CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
+		local ep, gp = CEPGP_getEPGP(main, mainIndex)
+		CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, alt, ep, gp)
+		CEPGP_NON_DB[CEPGP_NON_INDEX]["ALT"] = true
+		CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
+	end
+end)
 
 function CEPGP_NON_importStandings()
 	CEPGP_NON_DB = {};
@@ -515,9 +546,10 @@ function CEPGP_encodeClassString_Hook(class, str)
 		["ROGUE"] = "00FFF569",
 		["SHAMAN"] = "000070DE",
 		["WARLOCK"] = "008787ED",
-		["WARRIOR"] = "00C79C6E"
+		["WARRIOR"] = "00C79C6E",
+		[""] = "00FFFFFF"
 	}
-	if class ~= nil and class ~= "" then
+	if class then
 		return "|c" .. colours[class] .. str .. "|r";
 	else
 		return "|cFFFFFFFF" .. str .. "|r";
