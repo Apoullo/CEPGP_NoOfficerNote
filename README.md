@@ -11,9 +11,7 @@ It is convenient for teams which using Google sheet to record EPGP.
 2. Click [Import Standings].
 3. Select and copy all the values of the three fields of the Google sheet "ID EP GP", paste them into the [Import EPGP] window, and click [Import Standings].
 
-Note: 
-1. After importing, the previous EPGP Traffic will be cleared.
-2. The imported EP/GP value will be rounded downward to its nearest integer
+Note: After importing, the previous EPGP Traffic will be cleared.
 
 ## After raiding
 1. type /cepnon to show up the window.
@@ -54,9 +52,7 @@ CEPGP NoneOfficeNote 是 CEPGP addon 的 plugin。\
 2. 點選 [導入列表] 
 3. 將Google表單 ID EP GP 三個欄位的值全選複製起來，貼到 [Import EPGP] 的視窗裡，點選 [Import Standings]
 
-註: 
-1. 導入列表後會清除之前的EPGP明細
-2. 導入的 EP/GP 數值會使用無條件捨去法化為整數
+註: 導入列表後會清除之前的EPGP明細
 
 ## 出團後
 1. 打 /cepnon 叫出視窗
