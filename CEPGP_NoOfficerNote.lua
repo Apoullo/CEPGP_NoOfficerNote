@@ -15,13 +15,14 @@ SlashCmdList["CEPGPNON"] = CEPGP_NON_SlashCmd
 CEPGP_NON_DB = {};
 CEPGP_NON_INDEX = 0
 CEPGP_NON_RECORD_ON_MAIN_ENABLE = true
-CEPGP_NON_RECORD_ON_MAIN_DISCOUNT = 50
+CEPGP_NON_RECORD_ON_MAIN_DISCOUNT = 100
 
 --[[ Code ]]--
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("ADDON_LOADED")
+frame:SetScript("OnEvent", CEPGP_NON_OnEvent)
 
 
 --[[ WOW API HOOK ]]--
@@ -48,7 +49,7 @@ end
 --end)
 
 function CEPGP_NON_GuildRosterSetOfficerNote_Hook(index, offNote)
-	if CEPGP_frame:IsShown() then
+	if CEPGP_Info.Active[1] and CEPGP_Info.Active[2] then
 		CEPGP_NON_SaveEPGP(index, offNote)
 		return
 	end
@@ -56,7 +57,7 @@ function CEPGP_NON_GuildRosterSetOfficerNote_Hook(index, offNote)
 end
 
 function CEPGP_NON_CanEditOfficerNote_Hook()
-	if CEPGP_frame:IsShown() then
+	if CEPGP_Info.Active[1] and CEPGP_Info.Active[2] then
 		return true
 	end
 	return origCanEditOfficerNote()
@@ -77,6 +78,8 @@ local function AddHook()
 	_G.CEPGP_export = CEPGP_NON_export
 	GuildRosterSetOfficerNote = CEPGP_NON_GuildRosterSetOfficerNote_Hook
 	CanEditOfficerNote = CEPGP_NON_CanEditOfficerNote_Hook
+	CEPGP_callItem = CEPGP_callItem_Hook
+
 
 	_G["CEPGP_options_alt_mangement_add_link"]:SetScript('OnClick', function()
 		local main = CEPGP_options_alt_mangement_main_link:GetText();
@@ -200,16 +203,51 @@ function CEPGP_NON_print(str, err)
 	end
 end
 
-local function OnEvent(self, event, arg1)
-    if arg1 ~= CEPGP_NON_Addon then return end
-    if event == "ADDON_LOADED" and CEPGP_NON_LoadedAddon == false then
+function CEPGP_NON_OnEvent(self, event, arg1)
+    if event == "ADDON_LOADED" and arg1 == CEPGP_NON_Addon and CEPGP_NON_LoadedAddon == false then
         self:UnregisterEvent("ADDON_LOADED")
         CEPGP_NON_LoadedAddon = true
         Init()
     end
 end
 
-frame:SetScript("OnEvent", OnEvent)
+local LastItemCall = nil
+function CEPGP_NON_Ticker_Countdown(id, gp, buttons, timeout)
+	if not id then return; end
+	if tonumber(timeout) <= 0 then return; end
+
+	LastItemCall = GetTime();
+	local timestamp = LastItemCall;
+	local timer = timeout-1;
+	
+	local callback;
+	callback = C_Timer.NewTicker(1, function()
+		if LastItemCall ~= timestamp or not CEPGP_distributing then
+			callback._remainingIterations = 1;
+			return;
+		end
+		if (CEPGP_ntgetn(CEPGP_itemsTable) == CEPGP_GetNumOnlineGroupMembers()) or (CEPGP_Info.LootResponants == CEPGP_GetNumOnlineGroupMembers()) then
+			callback._remainingIterations = 1;
+			return;
+		end
+
+		if timer == 0 then
+			if CEPGP.Loot.RaidWarning then
+				SendChatMessage('{rt7} {rt7} {rt7} {rt7} {rt7}' , "RAID_WARNING", CEPGP_LANGUAGE);
+			else
+				SendChatMessage('{rt7} {rt7} {rt7} {rt7} {rt7}', "RAID", CEPGP_LANGUAGE);
+			end
+			return;
+		end
+		if CEPGP.Loot.RaidWarning then
+			SendChatMessage(tostring(timer) , "RAID_WARNING", CEPGP_LANGUAGE);
+		else
+			SendChatMessage(tostring(timer), "RAID", CEPGP_LANGUAGE);
+		end
+		timer = timer - 1;
+	end, timeout);
+  end
+
 
 --[[ GUI functions ]]--
 function CEPGP_NON_importStandings()
@@ -257,28 +295,37 @@ end
 
 --[[ CEPGP HOOK functions ]]--
 hooksecurefunc("CEPGP_addCharacterLink", function(main, alt)
-	if CEPGP.Alt.Links[main][#CEPGP.Alt.Links[main]] ~= alt then
-		return
-	end
-	local mainIndex = -1
-	local altIndex = -1
-	for i = 1, #CEPGP_NON_DB do
-		if CEPGP_NON_DB[i]["NAME"] == main then
-			CEPGP_NON_DB[i]["ALT"] = false
-			mainIndex = i
-		elseif CEPGP_NON_DB[i]["NAME"] == alt then
-			CEPGP_NON_DB[i]["ALT"] = true
-			altIndex = i
+	if CEPGP.Alt.Links[main][#CEPGP.Alt.Links[main]] == alt then
+		local mainIndex = -1
+		local altIndex = -1
+		for i = 1, #CEPGP_NON_DB do
+			if CEPGP_NON_DB[i]["NAME"] == main then
+				CEPGP_NON_DB[i]["ALT"] = false
+				mainIndex = i
+			elseif CEPGP_NON_DB[i]["NAME"] == alt then
+				CEPGP_NON_DB[i]["ALT"] = true
+				altIndex = i
+			end
+		end
+
+		if mainIndex ~= -1 and altIndex == -1 then	-- found main and didn't found alt in the list
+			CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
+			local ep, gp = CEPGP_getEPGP(main, mainIndex)
+			CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, alt, ep, gp, true)
+			CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
 		end
 	end
-
-	if mainIndex ~= -1 and altIndex == -1 then	-- found main and didn't found alt in the list
-		CEPGP_NON_INDEX = CEPGP_NON_INDEX + 1
-		local ep, gp = CEPGP_getEPGP(main, mainIndex)
-		CEPGP_NON_CreateNewMember(CEPGP_NON_INDEX, alt, ep, gp, true)
-		CEPGP_rosterUpdate("GUILD_ROSTER_UPDATE")
-	end
 end)
+
+local origCEPGP_callItem = CEPGP_callItem
+function CEPGP_callItem_Hook(id, gp, buttons, timeout)
+	if timeout then
+		CEPGP_NON_Ticker_Countdown(id, gp, buttons, timeout)
+	end
+
+	origCEPGP_callItem(id, gp, buttons, timeout)
+end
+
 
 --[[ CEPGP Override functions ]]--
 
@@ -613,3 +660,5 @@ function CEPGP_encodeClassString_Override(class, str)
 		return "|cFFFFFFFF" .. str .. "|r";
 	end
 end
+
+
