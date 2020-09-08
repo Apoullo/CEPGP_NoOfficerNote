@@ -228,6 +228,11 @@ function CEPGP_NON_Ticker_Countdown(id, gp, buttons, timeout)
 		end
 		if (CEPGP_ntgetn(CEPGP_itemsTable) == CEPGP_GetNumOnlineGroupMembers()) or (CEPGP_Info.LootResponants == CEPGP_GetNumOnlineGroupMembers()) then
 			callback._remainingIterations = 1;
+			if CEPGP.Loot.RaidWarning then
+				SendChatMessage(L["Everyone replied"]  , "RAID_WARNING", CEPGP_LANGUAGE);
+			else
+				SendChatMessage(L["Everyone replied"] , "RAID", CEPGP_LANGUAGE);
+			end
 			return;
 		end
 
