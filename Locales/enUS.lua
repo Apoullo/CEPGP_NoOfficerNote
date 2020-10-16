@@ -12,3 +12,4 @@ L["Import Instruction"] = "Paste 3 Columns data\nfrom google sheet.\n| ID | EP |
 L["Export Instruction"] = "Gained EP/GP value list.\nYou can ctrl+c copy it to your sheet."
 L["Import alt error"] = "There should be NOT an ALT in the list."
 L["Everyone replied"] = true
+L["You have to be in a Raid"] = true

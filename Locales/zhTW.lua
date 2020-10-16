@@ -12,3 +12,4 @@ L["Import Instruction"] = "將Google表單裡\n| ID | EP | GP |\n三個欄位的
 L["Export Instruction"] = "本次出團獲得的EPGP列表\n用 ctrl+c 複製到你自己的表單中"
 L["Import alt error"] = "失敗，出團名單裡面不能有分身"
 L["Everyone replied"] = "所有人都回覆了"
+L["You have to be in a Raid"] = "你必須要在團隊之中"

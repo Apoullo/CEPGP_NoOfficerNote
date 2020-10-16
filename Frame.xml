@@ -378,13 +378,7 @@
 		<Scripts>
 			<OnShow>
 				CEPGP_Info.IgnoreUpdates = true;
-				if (GetNumGuildMembers() - CEPGP_Info.NumExcluded) > CEPGP_ntgetn(CEPGP_roster) and CEPGP_Info.Polling then
-					CEPGP_NON_export_dump:SetText("Scanning guild roster. Please wait...");
-					CEPGP_Info.RosterStack["Export"] = CEPGP_formatExport;
-					--table.insert(CEPGP_Info.RosterStack, CEPGP_formatExport);
-				else
-					CEPGP_formatExport();
-				end
+				CEPGP_formatExport();
 			</OnShow>
 			<OnHide>
 				CEPGP_Info.IgnoreUpdates = false;
@@ -621,5 +615,94 @@
 		</Scripts>
 	</Frame>
 
+	<Frame name="CEPGP_NON_Raid_Warning" parent="UIParent" hidden="true" enableMouse="true" frameStrata="FULLSCREEN" movable="true" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="300" y="100" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<Color r="0" g="0" b="0" />
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="256" y="64"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="12"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_title" inherits="GameFontNormal" text="No Officer Note">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_desc" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-30"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_close" inherits="UIPanelCloseButton">
+				<Size>
+					<AbsDimension x="40" y="40" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-3" y="-3" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PlaySound(799);
+						CEPGP_NON_Raid_Warning:Hide()
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="CEPGP_NON_Raid_Warning_text" inherits="GameFontNormal" text="" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$parent_title">
+							<Offset>
+								<AbsDimension x="0" y="-30"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
 	
 </Ui>
