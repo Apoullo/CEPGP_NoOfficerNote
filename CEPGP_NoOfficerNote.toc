@@ -1,11 +1,11 @@
 ## Title: Classic EPGP NoOfficerNote
-## Version: 1.13.0
+## Version: 1.13.1
 ## Author: Apollo @Taiwan
 ## Interface: 11305
 ## Dependencies: CEPGP
 ## LoadWith: CEPGP
 ## Notes: A plugin of CEPGP addon that can record the EPGP without officer note.
-## SavedVariables: CEPGP_NON_DB, CEPGP_NON_INDEX, CEPGP_NON_RECORD_ON_MAIN_ENABLE, CEPGP_NON_RECORD_ON_MAIN_DISCOUNT
+## SavedVariables: CEPGP_NON_DB, CEPGP_NON_INDEX, CEPGP_NON_RECORD_ON_MAIN_ENABLE, CEPGP_NON_RECORD_ON_MAIN_DISCOUNT,
 
 Libs\libs.xml
 Locales\locales.xml

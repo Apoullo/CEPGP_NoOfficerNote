@@ -13,3 +13,4 @@ L["Export Instruction"] = "本次出团获得的EPGP列表\n用 ctrl+c 复制到
 L["Import alt error"] = "失败，出团名单里面不能有小号"
 L["Everyone replied"] = "所有人都回覆了"
 L["You have to be in a Raid"] = "你必须要在团队之中"
+L["You are not the Loot Master"] = "你不是装备分配者"

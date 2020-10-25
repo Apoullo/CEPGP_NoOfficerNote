@@ -61,10 +61,10 @@
 							CEPGP.Alt.SyncEP = true;
 							CEPGP.Alt.SyncGP = true;
 							CEPGP_NON_RECORD_ON_MAIN_ENABLE = true;
-							CEPGP_NON_print("Alt Management - Record on Main enabled");
+							CEPGP_NON_Print("Alt Management - Record on Main enabled");
 						else
 							CEPGP_NON_RECORD_ON_MAIN_ENABLE = false;
-							CEPGP_NON_print("Alt Management - Record on Main disabled");
+							CEPGP_NON_Print("Alt Management - Record on Main disabled");
 						end
 					</OnClick>
 					<OnShow>
@@ -108,11 +108,11 @@
 						end
 						if value > 100 or 0 > value then
 							self:SetText(default);
-							CEPGP_NON_print("Discount must be between 0% ~ 100%.", true);
+							CEPGP_NON_Print("Discount must be between 0% ~ 100%.", true);
 							return;
 						end
 						CEPGP_NON_RECORD_ON_MAIN_DISCOUNT = value;
-						CEPGP_NON_print("EP percent updated.");
+						CEPGP_NON_Print("EP percent updated.");
 					</OnEditFocusLost>
 					<OnShow>
 						self:SetText(CEPGP_NON_RECORD_ON_MAIN_DISCOUNT)

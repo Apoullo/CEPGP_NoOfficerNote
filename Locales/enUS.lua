@@ -13,3 +13,5 @@ L["Export Instruction"] = "Gained EP/GP value list.\nYou can ctrl+c copy it to y
 L["Import alt error"] = "There should be NOT an ALT in the list."
 L["Everyone replied"] = true
 L["You have to be in a Raid"] = true
+L["You are not the Loot Master"] = true
+
